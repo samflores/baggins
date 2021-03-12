@@ -1,0 +1,61 @@
+grammar RulesGrammar
+  rule list
+    line* {
+      def eval(env={})
+        elements.map do |el|
+          el.eval if el.respond_to?(:eval) 
+        end
+      end
+    }
+  end
+
+  rule line
+    bag_name ' contain ' bag_count_list '.' [\n] 0..1 {
+      def eval(env={})
+        Baggins::Bag.new(
+          name: bag_name.eval(env),
+          children: bag_count_list.eval(env)
+        )
+      end
+    }
+  end
+
+  rule bag_name
+    words:(word word) 'bag' 's' 0..1 {
+      def eval(env={})
+        words.elements.map { |word| word.text_value.strip }.join(' ')
+      end
+    }
+  end
+
+  rule bag_count_list
+    'no other bags' {
+      def eval(env={})
+        {}
+      end
+    }
+    /
+    bag_count_item more_items:(', ' bag_count_item )* {
+      def eval(env={})
+        children = [bag_count_item] + more_items.elements.map { |el| el.bag_count_item }
+        children.map { |child| child.eval(env) }.to_h
+      end
+    }
+  end
+
+  rule bag_count_item
+    number bag_name {
+      def eval(env={})
+        [bag_name.eval(env), number.text_value.to_i]
+      end
+    }
+  end
+
+  rule number
+    ([0-9]+ [ \t]+)
+  end
+
+  rule word
+    ([a-zA-Z]+ [ \t]+) 
+  end
+end

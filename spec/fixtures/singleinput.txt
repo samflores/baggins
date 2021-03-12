@@ -1,0 +1,4 @@
+bright white bags contain 1 shiny gold bag.
+shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+dark olive bags contain no other bags.
+vibrant plum bags contain no other bags.
